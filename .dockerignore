@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Node
+node_modules
+npm-debug.log
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+README.md

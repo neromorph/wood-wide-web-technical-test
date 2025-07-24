@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotel-list-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hotel-list-api
+  template:
+    metadata:
+      labels:
+        app: hotel-list-api
+    spec:
+      containers:
+        - name: api
+          image: API_IMAGE_PLACEHOLDER
+          ports:
+            - containerPort: 4000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotel-list-api
+spec:
+  selector:
+    app: hotel-list-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotel-list-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hotel-list-web
+  template:
+    metadata:
+      labels:
+        app: hotel-list-web
+    spec:
+      containers:
+        - name: web
+          image: WEB_IMAGE_PLACEHOLDER
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotel-list-web
+spec:
+  selector:
+    app: hotel-list-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
