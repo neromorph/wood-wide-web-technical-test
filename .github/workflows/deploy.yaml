@@ -37,8 +37,8 @@ jobs:
         if: steps.changed-files.outputs.api_any_changed == 'true'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: hotel-list-api
-          IMAGE_TAG: ${{ github.sha }}
+          ECR_REPOSITORY: hotel-list/api
+          IMAGE_TAG: dev-${{ github.run_number }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --target api .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -47,8 +47,8 @@ jobs:
         if: steps.changed-files.outputs.web_any_changed == 'true'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: hotel-list-web
-          IMAGE_TAG: ${{ github.sha }}
+          ECR_REPOSITORY: hotel-list/web
+          IMAGE_TAG: dev-${{ github.run_number }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --target web .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -60,6 +60,6 @@ jobs:
       - name: Deploy to EKS
         if: steps.changed-files.outputs.api_any_changed == 'true' || steps.changed-files.outputs.web_any_changed == 'true'
         run: |
-          sed -i "s|API_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list-api:${{ github.sha }}|g" k8s/deployment.yaml
-          sed -i "s|WEB_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list-web:${{ github.sha }}|g" k8s/deployment.yaml
+          sed -i "s|API_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/api:dev-${{ github.run_number }}|g" k8s/deployment.yaml
+          sed -i "s|WEB_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/web:dev-${{ github.run_number }}|g" k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml
