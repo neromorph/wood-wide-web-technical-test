@@ -9,7 +9,7 @@ RUN npm install -g pnpm@10.13.1
 COPY package.json pnpm-workspace.yaml ./
 COPY packages/web/package.json ./packages/web/
 # Install only web dependencies
-RUN pnpm install --filter web...
+RUN pnpm install --filter web
 # Copy source code and build
 COPY packages/web ./packages/web
 RUN pnpm --filter web run build
@@ -24,8 +24,8 @@ RUN npm install -g pnpm@10.13.1
 # Copy dependency manifests
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/api/package.json ./packages/api/
-# Install only api dependencies
-RUN pnpm install --filter api... --prod
+# Install ALL api dependencies (including dev) for the build
+RUN pnpm install --filter api
 # Copy source code and build
 COPY packages/api ./packages/api
 RUN pnpm --filter api run build
@@ -39,10 +39,18 @@ WORKDIR /app
 # Create a non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Install pnpm to install production dependencies
+RUN npm install -g pnpm@10.13.1
+
+# Copy dependency manifests
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/api/package.json ./packages/api/
+
+# Install only production dependencies
+RUN pnpm install --filter api
+
 # Copy built application files from the builder stage with correct ownership
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./dist
-COPY --from=api-builder --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/package.json ./
 
 # Switch to the non-root user
 USER appuser
