@@ -22,10 +22,10 @@ WORKDIR /app
 # Install pnpm globally
 RUN npm install -g pnpm@10.13.1
 # Copy dependency manifests
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/api/package.json ./packages/api/
 # Install only api dependencies
-RUN pnpm install --filter api...
+RUN pnpm install --filter api... --prod
 # Copy source code and build
 COPY packages/api ./packages/api
 RUN pnpm --filter api run build
@@ -41,7 +41,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy built application files from the builder stage with correct ownership
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./dist
-COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/node_modules ./node_modules
+COPY --from=api-builder --chown=appuser:appgroup /app/node_modules ./node_modules
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/package.json ./
 
 # Switch to the non-root user
