@@ -67,6 +67,10 @@ COPY --from=web-builder /app/packages/web/dist/web/browser .
 RUN mkdir -p /run /var/cache/nginx /var/log/nginx && \
     chown -R nginx:nginx /run /var/cache/nginx /var/log/nginx
 
+RUN apk add --no-cache libcap && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx && \
+    apk del libcap
+
 # Switch to nginx user **after** permissions are set
 USER nginx
 
