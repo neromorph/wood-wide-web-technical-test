@@ -1,0 +1,11 @@
+<mat-toolbar color="primary">
+  <span>Hotel List</span>
+  <span class="spacer"></span>
+  <button mat-icon-button (click)="openDialog()">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
+
+<main>
+  <app-hotel-list (edit)="openDialog($event)"></app-hotel-list>
+</main>
