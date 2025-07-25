@@ -12,15 +12,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: changed-files
+      # For API
+      - name: Get changed files (api)
+        id: changed-files-api
         uses: tj-actions/changed-files@v35
         with:
-          files_yaml: |
-            api:
-              - 'packages/api/**'
-            web:
-              - 'packages/web/**'
+          files: |
+            packages/api/**
+
+      # For Web
+      - name: Get changed files (web)
+        id: changed-files-web
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            packages/web/**
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -34,7 +40,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and push API image
-        if: steps.changed-files.outputs.api_any_changed == 'true'
+        if: steps.changed-files-api.outputs.any_changed == 'true'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: hotel-list/api
@@ -44,7 +50,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build and push Web image
-        if: steps.changed-files.outputs.web_any_changed == 'true'
+        if: steps.changed-files-web.outputs.any_changed == 'true'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: hotel-list/web
@@ -54,11 +60,11 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Set up Kubeconfig
-        if: steps.changed-files.outputs.api_any_changed == 'true' || steps.changed-files.outputs.web_any_changed == 'true'
+        if: steps.changed-files-api.outputs.any_changed == 'true' || steps.changed-files-web.outputs.any_changed == 'true'
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to EKS
-        if: steps.changed-files.outputs.api_any_changed == 'true' || steps.changed-files.outputs.web_any_changed == 'true'
+        if: steps.changed-files-api.outputs.any_changed == 'true' || steps.changed-files-web.outputs.any_changed == 'true'
         run: |
           sed -i "s|API_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/api:dev-${{ github.run_number }}|g" k8s/deployment.yaml
           sed -i "s|WEB_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/web:dev-${{ github.run_number }}|g" k8s/deployment.yaml
