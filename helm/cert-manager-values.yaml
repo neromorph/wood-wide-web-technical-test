@@ -1,0 +1,83 @@
+# Global settings for all cert-manager components
+global:
+  nodeSelector:
+    eks.amazonaws.com/nodegroup: www-node-pool-2
+
+# Controller component configuration
+nodeSelector:
+  eks.amazonaws.com/nodegroup: www-node-pool-2
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: eks.amazonaws.com/nodegroup
+            operator: In
+            values:
+              - www-node-pool-2
+
+# Webhook component configuration  
+webhook:
+  nodeSelector:
+    eks.amazonaws.com/nodegroup: www-node-pool-2
+  
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+            - key: eks.amazonaws.com/nodegroup
+              operator: In
+              values:
+                - www-node-pool-2
+  
+  resources:
+    requests:
+      cpu: 10m
+      memory: 40Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+# CA Injector component configuration
+cainjector:
+  nodeSelector:
+    eks.amazonaws.com/nodegroup: www-node-pool-2
+  
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+            - key: eks.amazonaws.com/nodegroup
+              operator: In
+              values:
+                - www-node-pool-2
+
+# Startupapicheck component configuration
+startupapicheck:
+  nodeSelector:
+    eks.amazonaws.com/nodegroup: www-node-pool-2
+
+# Resource configurations suitable for EKS
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# Enable the installation of Custom Resource Definitions
+installCRDs: false
+
+# Add tolerations if your EKS nodes have taints
+# tolerations:
+#   - key: "dedicated"
+#     operator: "Equal"
+#     value: "www"
+#     effect: "NoSchedule"
+
+# Optional: High Availability settings
+# replicaCount: 2

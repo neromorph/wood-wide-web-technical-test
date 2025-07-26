@@ -6,7 +6,7 @@ metadata:
     # 1. Specify the Ingress Class as ALB
     kubernetes.io/ingress.class: alb
     # 2. Use cert-manager to issue the certificate
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cloudflare
     # 3. Set the scheme to internet-facing for a public ALB
     alb.ingress.kubernetes.io/scheme: internet-facing
     # 4. Tell the ALB to listen on both HTTP and HTTPS ports
@@ -19,23 +19,24 @@ spec:
   tls:
     - hosts:
         - hotel-list.nmdigital.cloud
+        - hotel-list-api.nmdigital.cloud
       secretName: hotel-list-tls
   rules:
-    - host: hotel-list.nmdigital.cloud
+    - host: hotel-list-api.nmdigital.cloud
       http:
         paths:
-          # Route /api/* to the API service
-          # IMPORTANT: ALB does not rewrite the path. Your API must handle /api/*.
-          - path: /api/*
-            pathType: ImplementationSpecific
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: hotel-list-api
                 port:
-                  number: 80
-          # Route everything else to the Web service
-          - path: /*
-            pathType: ImplementationSpecific
+                  number: 4000
+    - host: hotel-list.nmdigital.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: hotel-list-web
