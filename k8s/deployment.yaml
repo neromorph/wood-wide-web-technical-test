@@ -12,9 +12,15 @@ spec:
       labels:
         app: hotel-list-api
     spec:
-      # Add nodeSelector to target the new node group
-      nodeSelector:
-        eks.amazonaws.com/nodegroup: www-node-pool-2
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - www-node-pool-2
       containers:
         - name: api
           image: API_IMAGE_PLACEHOLDER
@@ -57,9 +63,15 @@ spec:
       labels:
         app: hotel-list-web
     spec:
-      # Add nodeSelector to target the new node group
-      nodeSelector:
-        eks.amazonaws.com/nodegroup: www-node-pool-2
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - www-node-pool-2
       containers:
         - name: web
           image: WEB_IMAGE_PLACEHOLDER

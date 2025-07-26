@@ -1,0 +1,14 @@
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: eks.amazonaws.com/nodegroup
+          operator: In
+          values:
+          - www-node-pool-2
+
+replicaCount: 1
+
+vpcId: "vpc-07898ba1729ca563f"
+region: "ap-southeast-1"
