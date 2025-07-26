@@ -63,9 +63,14 @@ jobs:
         if: steps.changed-files-api.outputs.any_changed == 'true' || steps.changed-files-web.outputs.any_changed == 'true'
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to EKS
-        if: steps.changed-files-api.outputs.any_changed == 'true' || steps.changed-files-web.outputs.any_changed == 'true'
+      - name: Deploy API to EKS
+        if: steps.changed-files-api.outputs.any_changed == 'true'
         run: |
           sed -i "s|API_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/api:dev-${{ github.run_number }}|g" k8s/deployment.yaml
+          kubectl apply -f k8s/
+      
+      - name: Deploy Web to EKS
+        if: steps.changed-files-web.outputs.any_changed == 'true'
+        run: |
           sed -i "s|WEB_IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/hotel-list/web:dev-${{ github.run_number }}|g" k8s/deployment.yaml
-          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/
