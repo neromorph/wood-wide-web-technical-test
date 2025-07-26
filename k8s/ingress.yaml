@@ -3,22 +3,39 @@ kind: Ingress
 metadata:
   name: hotel-list-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # 1. Specify the Ingress Class as ALB
+    kubernetes.io/ingress.class: alb
+    # 2. Use cert-manager to issue the certificate
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # 3. Set the scheme to internet-facing for a public ALB
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # 4. Tell the ALB to listen on both HTTP and HTTPS ports
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # 5. Redirect HTTP traffic to the HTTPS port
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
-  ingressClassName: nginx
+  # The 'tls' block tells cert-manager which certificate to request
+  # and where to store it. The ALB controller then uses this secret.
+  tls:
+    - hosts:
+        - hotel-list.nmdigital.cloud
+      secretName: hotel-list-tls
   rules:
-    - host: hotel-list.local
+    - host: hotel-list.nmdigital.cloud
       http:
         paths:
-          - path: /api(/|$)(.*)
-            pathType: Prefix
+          # Route /api/* to the API service
+          # IMPORTANT: ALB does not rewrite the path. Your API must handle /api/*.
+          - path: /api/*
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: hotel-list-api
                 port:
                   number: 80
-          - path: /(.*)
-            pathType: Prefix
+          # Route everything else to the Web service
+          - path: /*
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: hotel-list-web
