@@ -2,11 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: hotel-list-ingress
+  namespace: apps
   annotations:
     # 1. Specify the Ingress Class as ALB
     kubernetes.io/ingress.class: alb
-    # 2. Use cert-manager to issue the certificate
-    cert-manager.io/cluster-issuer: letsencrypt-prod-cloudflare
+    # 2. Specify the ACM certificate ARN
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:564054097121:certificate/e4ecfe78-1a04-4035-aac4-090b24d89ad5
     # 3. Set the scheme to internet-facing for a public ALB
     alb.ingress.kubernetes.io/scheme: internet-facing
     # 4. Tell the ALB to listen on both HTTP and HTTPS ports
@@ -14,27 +15,17 @@ metadata:
     # 5. Redirect HTTP traffic to the HTTPS port
     alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
-  # The 'tls' block tells cert-manager which certificate to request
-  # and where to store it. The ALB controller then uses this secret.
-  tls:
-    - hosts:
-        - hotel-list.nmdigital.cloud
-        - hotel-list-api.nmdigital.cloud
-      secretName: hotel-list-tls
   rules:
-    - host: hotel-list-api.nmdigital.cloud
+    - host: hotel-list.nmdigital.cloud
       http:
         paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: hotel-list-api
                 port:
                   number: 4000
-    - host: hotel-list.nmdigital.cloud
-      http:
-        paths:
           - path: /
             pathType: Prefix
             backend:
