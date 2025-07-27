@@ -36,11 +36,11 @@ RUN pnpm --filter api run build
 FROM node:22-alpine3.22 AS api
 WORKDIR /app
 
-# Create a non-root user and group
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 # Install pnpm globally
 RUN npm install -g pnpm@10.13.1
+
+# Create a non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy built application files from the builder stage
 COPY --from=api-builder --chown=appuser:appgroup /app/node_modules ./node_modules
@@ -49,6 +49,7 @@ COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/node_modules 
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./packages/api/dist
 
 WORKDIR /app/packages/api
+
 USER appuser
 
 EXPOSE 4000
