@@ -24,7 +24,7 @@ spec:
                 - www-node-pool-2
       containers:
         - name: api
-          image: API_IMAGE_PLACEHOLDER
+          image: 564054097121.dkr.ecr.ap-southeast-1.amazonaws.com/hotel-list/api:dev-latest
           ports:
             - containerPort: 4000
           env:
@@ -93,7 +93,7 @@ spec:
                 - www-node-pool-2
       containers:
         - name: web
-          image: WEB_IMAGE_PLACEHOLDER
+          image: 564054097121.dkr.ecr.ap-southeast-1.amazonaws.com/hotel-list/web:dev-latest
           ports:
             - containerPort: 80
           env:
