@@ -1,3 +1,3 @@
 window.env = {
-  backendUrl: 'http://localhost:4000/graphql'
+  backendUrl: 'http://api-service.default.svc.cluster.local:4000/graphql'
 };
