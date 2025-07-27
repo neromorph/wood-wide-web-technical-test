@@ -33,11 +33,8 @@ RUN pnpm --filter api run build
 # -----------------------------------------------------------------------------
 # Final Backend Stage
 # -----------------------------------------------------------------------------
-FROM node:22-alpine3.22 AS api
+FROM api-builder AS api
 WORKDIR /app
-
-# Install pnpm globally
-RUN npm install -g pnpm@10.13.1
 
 # Create a non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
