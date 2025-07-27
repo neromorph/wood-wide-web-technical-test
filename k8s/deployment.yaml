@@ -98,7 +98,7 @@ spec:
             - containerPort: 80
           env:
             - name: BACKEND_URL
-              value: "http://hotel-list-api.nmdigital.cloud/graphql"
+              value: "http://hotel-list-api:4000/graphql"
           resources:
             requests:
               cpu: "100m"

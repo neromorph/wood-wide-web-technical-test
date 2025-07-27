@@ -39,16 +39,16 @@ WORKDIR /app
 # Create a non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Install pnpm globally
+RUN npm install -g pnpm@10.13.1
+
 # Copy built application files from the builder stage
 COPY --from=api-builder --chown=appuser:appgroup /app/node_modules ./node_modules
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/package.json ./packages/api/package.json
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/node_modules ./packages/api/node_modules
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./packages/api/dist
 
-# Set working directory to the api package
 WORKDIR /app/packages/api
-
-# Switch to the non-root user
 USER appuser
 
 EXPOSE 4000
