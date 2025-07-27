@@ -89,13 +89,16 @@ spec:
             - matchExpressions:
               - key: eks.amazonaws.com/nodegroup
                 operator: In
-                values:
+                values: 
                 - www-node-pool-2
       containers:
         - name: web
           image: WEB_IMAGE_PLACEHOLDER
           ports:
             - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              value: "http://hotel-list-api.nmdigital.cloud/graphql"
           resources:
             requests:
               cpu: "100m"

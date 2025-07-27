@@ -36,6 +36,8 @@ spec:
                 operator: In
                 values:
                 - www-node-pool-2
+              - key: topology.kubernetes.io/zone
+                operator: Exists
       containers:
       - name: postgres
         image: postgres:17-alpine
@@ -61,6 +63,7 @@ spec:
   - metadata:
       name: postgres-storage
     spec:
+      storageClassName: "ebs-sc"
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
