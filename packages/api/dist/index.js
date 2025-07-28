@@ -26,6 +26,9 @@ function startServer() {
         const httpServer = http_1.default.createServer(app);
         const server = new server_1.ApolloServer({ typeDefs: schema_1.typeDefs, resolvers: resolvers_1.resolvers });
         yield server.start();
+        app.get('/health', (req, res) => {
+            res.status(200).json({ status: 'healthy' });
+        });
         // Apply middleware directly to the /graphql endpoint
         app.use('/graphql', (0, cors_1.default)(), (0, body_parser_1.json)(), (0, express4_1.expressMiddleware)(server));
         const port = process.env.PORT || 4000;

@@ -14,6 +14,10 @@ async function startServer() {
 
   await server.start();
 
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy' });
+  });
+
   // Apply middleware directly to the /graphql endpoint
   app.use(
     '/graphql',
