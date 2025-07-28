@@ -14,8 +14,20 @@ async function startServer() {
 
   await server.start();
 
+  // Health check endpoint
   app.get('/health', (req, res) => {
     res.status(200).json({ status: 'healthy' });
+  });
+
+  // Optional: Root endpoint for basic connectivity test
+  app.get('/', (req, res) => {
+    res.status(200).json({ 
+      message: 'Hotel List API is running',
+      endpoints: {
+        health: '/health',
+        graphql: '/graphql'
+      }
+    });
   });
 
   // Apply middleware directly to the /graphql endpoint
@@ -34,7 +46,6 @@ async function startServer() {
       console.log(`🚀 Server ready at http://${host}:${port}`);
       console.log(`📊 Health check at http://${host}:${port}/health`);
       console.log(`🎯 GraphQL endpoint at http://${host}:${port}/graphql`);
-      console.log(`🐛 Debug endpoint at http://${host}:${port}/`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       resolve();
     });
