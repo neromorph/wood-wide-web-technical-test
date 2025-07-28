@@ -27,9 +27,18 @@ async function startServer() {
   );
 
   const port = process.env.PORT || 4000;
+  const host = '0.0.0.0'; // IMPORTANT: Bind to all interfaces for Kubernetes
 
-  await new Promise<void>((resolve) => httpServer.listen({ port, host: '0.0.0.0' }, resolve));
-  console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+  await new Promise<void>((resolve) => {
+    httpServer.listen({ port, host }, () => {
+      console.log(`🚀 Server ready at http://${host}:${port}`);
+      console.log(`📊 Health check at http://${host}:${port}/health`);
+      console.log(`🎯 GraphQL endpoint at http://${host}:${port}/graphql`);
+      console.log(`🐛 Debug endpoint at http://${host}:${port}/`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      resolve();
+    });
+  });
 }
 
 startServer();

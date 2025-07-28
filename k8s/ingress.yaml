@@ -4,30 +4,47 @@ metadata:
   name: hotel-list-ingress
   namespace: apps
   annotations:
-    # 1. Specify the Ingress Class as ALB
+    # ALB Configuration
     kubernetes.io/ingress.class: alb
-    # 2. Specify the ACM certificate ARN
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:564054097121:certificate/e4ecfe78-1a04-4035-aac4-090b24d89ad5
-    # 3. Set the scheme to internet-facing for a public ALB
     alb.ingress.kubernetes.io/scheme: internet-facing
-    # 4. Tell the ALB to listen on both HTTP and HTTPS ports
+    alb.ingress.kubernetes.io/target-type: ip
+    
+    # SSL Configuration
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:564054097121:certificate/e4ecfe78-1a04-4035-aac4-090b24d89ad5
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    # 5. Redirect HTTP traffic to the HTTPS port
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/target-type: 'ip'
-    alb.ingress.kubernetes.io/backend-protocol: 'HTTP'
+    alb.ingres.kubernetes.io/ssl-redirect: '443'
+    
+    # Health Check Configuration
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/success-codes: '200'
+    
+    # Load Balancer Settings
+    alb.ingress.kubernetes.io/load-balancer-name: hotel-list-alb
+    alb.ingress.kubernetes.io/group.name: hotel-list
 spec:
   rules:
+    # GraphQL API
     - host: hotel-list-api.nmdigital.cloud
       http:
         paths:
-          - path: /graphql
+          # Health endpoint first (more specific path)
+          - path: /health
             pathType: Exact
             backend:
               service:
                 name: hotel-list-api
                 port:
                   number: 4000
+          # GraphQL endpoint
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: hotel-list-api
+                port:
+                  number: 4000
+    
+    # Frontend
     - host: hotel-list.nmdigital.cloud
       http:
         paths:
@@ -38,3 +55,9 @@ spec:
                 name: hotel-list-web
                 port:
                   number: 80
+  
+  # TLS Configuration
+  tls:
+    - hosts:
+        - hotel-list-api.nmdigital.cloud
+        - hotel-list.nmdigital.cloud
