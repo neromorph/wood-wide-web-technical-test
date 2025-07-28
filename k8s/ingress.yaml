@@ -21,8 +21,8 @@ spec:
     - host: hotel-list-api.nmdigital.cloud
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - path: /graphql
+            pathType: Exact
             backend:
               service:
                 name: hotel-list-api
