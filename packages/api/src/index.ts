@@ -37,8 +37,8 @@ async function startServer() {
     ? ['https://hotel-list.nmdigital.cloud']
     : [/^http:\/\/localhost(:\d+)?$/];
 
-  const corsOptions = {
-    origin: (origin, callback) => {
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin || (allowedOrigins.some(allowedOrigin => 
         typeof allowedOrigin === 'string' 
           ? allowedOrigin === origin 
