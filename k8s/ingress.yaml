@@ -4,45 +4,25 @@ metadata:
   name: hotel-list-ingress
   namespace: apps
   annotations:
-    # ALB Configuration
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    
-    # SSL Configuration
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:564054097121:certificate/e4ecfe78-1a04-4035-aac4-090b24d89ad5
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingres.kubernetes.io/ssl-redirect: '443'
-    
-    # Health Check Configuration
-    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
-    alb.ingress.kubernetes.io/success-codes: '200'
-    
-    # Load Balancer Settings
-    alb.ingress.kubernetes.io/load-balancer-name: hotel-list-alb
-    alb.ingress.kubernetes.io/group.name: hotel-list
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
   rules:
     # GraphQL API
     - host: hotel-list-api.nmdigital.cloud
       http:
         paths:
-          # Health endpoint first (more specific path)
-          - path: /health
-            pathType: Exact
-            backend:
-              service:
-                name: hotel-list-api
-                port:
-                  number: 4000
-          # GraphQL endpoint
           - path: /graphql
             pathType: Prefix
             backend:
               service:
                 name: hotel-list-api
                 port:
-                  number: 4000
+                  number: 80
     
     # Frontend
     - host: hotel-list.nmdigital.cloud

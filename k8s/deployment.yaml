@@ -54,50 +54,24 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          # Health checks
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 4000
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 4000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 5
-            failureThreshold: 3
 
 ---
-# 2. API Service - Fixed port mapping
 apiVersion: v1
 kind: Service
 metadata:
   name: hotel-list-api
   namespace: apps
-  annotations:
-    # Health check configuration for ALB
-    alb.ingress.kubernetes.io/healthcheck-path: /health
-    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
-    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '10'
-    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
 spec:
   selector:
     app: hotel-list-api
   ports:
     - name: http
       protocol: TCP
-      port: 4000
+      port: 80
       targetPort: 4000
   type: ClusterIP
 
 ---
-# 3. Web Deployment - Fixed environment variable
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -129,7 +103,7 @@ spec:
             - containerPort: 80
           env:
             - name: BACKEND_URL
-              value: "http://hotel-list-api.apps.svc.cluster.local:4000/graphql"
+              value: "https://hotel-list-api.nmdigital.cloud/graphql"
             - name: GRAPHQL_URI
               value: "https://hotel-list-api.nmdigital.cloud/graphql"
             - name: NODE_ENV
@@ -156,7 +130,6 @@ spec:
             periodSeconds: 5
 
 ---
-# 4. Web Service - No changes needed
 apiVersion: v1
 kind: Service
 metadata:
