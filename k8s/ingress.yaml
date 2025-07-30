@@ -22,7 +22,21 @@ spec:
               service:
                 name: hotel-list-api
                 port:
-                  number: 80
+                  number: 4000
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: hotel-list-api
+                port:
+                  number: 4000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hotel-list-api
+                port:
+                  number: 4000
     
     # Frontend
     - host: hotel-list.nmdigital.cloud

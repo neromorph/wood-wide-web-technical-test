@@ -30,10 +30,33 @@ async function startServer() {
     });
   });
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  // Define allowed origins
+  const allowedOrigins = isProduction
+    ? ['https://hotel-list.nmdigital.cloud']
+    : [/^http:\/\/localhost(:\d+)?$/];
+
+  const corsOptions = {
+    origin: (origin, callback) => {
+      if (!origin || (allowedOrigins.some(allowedOrigin => 
+        typeof allowedOrigin === 'string' 
+          ? allowedOrigin === origin 
+          : allowedOrigin.test(origin)
+      ))) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  };
+
+  app.use(cors(corsOptions));
+
   // Apply middleware directly to the /graphql endpoint
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>(),
     json(),
     expressMiddleware(server),
   );
