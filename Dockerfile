@@ -18,14 +18,33 @@ COPY packages/api ./packages/api
 RUN pnpm --filter api run build
 
 FROM api-builder AS api
+
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Make pnpm accessible to appuser
+COPY --from=api-builder --chown=root:root /usr/local/bin/pnpm /usr/local/bin/pnpm
+
+# Install ts-node globally for prisma:seed command
+RUN npm install -g ts-node typescript
+
+RUN mkdir -p /home/appuser/.npm-global && \
+    chown -R appuser:appgroup /home/appuser/.npm-global && \
+    echo "export PATH=/home/appuser/.npm-global/bin:$PATH" >> /home/appuser/.profile && \
+    mkdir -p /app/.pnpm-store && \
+    chown -R appuser:appgroup /app/.pnpm-store
+
+ENV PATH="/usr/local/bin:$PATH"
+ENV PNPM_HOME="/home/appuser/.npm-global"
+
+# Copy prisma directory for seeding
+COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/prisma ./packages/api/prisma
+
 COPY --from=api-builder --chown=appuser:appgroup /app/node_modules ./node_modules
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/package.json ./packages/api/package.json
 COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/node_modules ./packages/api/node_modules
-COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./packages/api/dist
+COPY --from=api-builder --chown=appuser:appgroup /app/packages/api/dist ./packages/api/dist     
 
 WORKDIR /app/packages/api
 
@@ -43,7 +62,7 @@ RUN mkdir -p /run /var/cache/nginx /var/log/nginx && \
     chown -R nginx:nginx /run /var/cache/nginx /var/log/nginx
 
 RUN apk add --no-cache libcap && \
-    setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx && \
+    setcap "cap_net_bind_service=+ep" /usr/sbin/nginx && \
     apk del libcap
 
 USER nginx
